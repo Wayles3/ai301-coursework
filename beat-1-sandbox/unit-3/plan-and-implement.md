@@ -19,7 +19,25 @@ Wayles3
 
 **Plan comment**
 
-[TODO: link to the posted plan comment on issue #56, then paste the text of what was posted underneath.]
+https://github.com/codepath/pathreview-ai301-fa26-howard/issues/56#issuecomment-6406678902
+
+Here's what I plan to do for this, built on my repro above (`main` at 99673c7).
+
+**What I think is going on:** in `_extract_sections` (`ingestion/chunking/structural_chunker.py`), a content line is only added when `heading_stack or current_section_lines` is non-empty, and the last section is only saved when `heading_stack` is non-empty. With no `#` line, neither ever happens, so `sections` stays `[]` and `chunk()` returns `[]`. That matches my runs: 0 chunks for the plain text, 1 chunk once I add `# Title`. I got this from reading the code and my two runs; I haven't stepped through it in a debugger.
+
+**Change:** if the document has no heading lines at all, `_extract_sections` returns the whole text as one section (empty path, level 0). Documents that have headings go through the same code as before. I'll also remove the `xfail` marker from `test_document_with_no_headings`, since CONTRIBUTING says the strict marker has to go with the fix.
+
+**Files:** `ingestion/chunking/structural_chunker.py` and `tests/unit/test_structural_chunker.py`, nothing else.
+
+**Not in scope:** text that comes before the first heading in a document that does have headings (it looks dropped to me too, but I haven't reproduced that), the unused `current_level` line, `SemanticChunker`, and the token limit.
+
+**How I'll check it:** re-run my repro snippet (I expect `plain text, len 1000 -> 1 chunks` and the `# Title` case unchanged), and run `tests/unit/test_structural_chunker.py` with the marker removed (I expect 15 passed).
+
+**One thing I wasn't sure about:** an empty `heading_path` for that one chunk. I looked for readers of `heading_path` and only found a docstring in `base.py`; I'll confirm in my run that it comes back as `""` and nothing breaks, and post what I see.
+
+I don't see another PR open for #56. I can't promise a date for a PR yet.
+
+(Disclosure: I'm using an AI assistant to help with this work. I ran the commands myself.)
 
 ---
 
