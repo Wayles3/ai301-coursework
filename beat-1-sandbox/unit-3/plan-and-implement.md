@@ -15,17 +15,11 @@ label is not graded.
 
 **GitHub username**
 
-[Your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comment upstream is identified by this name, and it is
-the only thing that ties it to you. Several students may plan the same
-house issue, so this is what keeps their comments off your score and
-yours off theirs.]
+Wayles3
 
 **Plan comment**
 
-[Link to the comment where you posted your plan on the issue. Use the comment's own
-permalink. **Then paste the text of that comment underneath the link** — the pasted text is
-what this field is graded on, so copy across what you actually posted.]
+[TODO: link to the posted plan comment on issue #56, then paste the text of what was posted underneath.]
 
 ---
 
@@ -33,15 +27,40 @@ what this field is graded on, so copy across what you actually posted.]
 
 **Branch**
 
-[The name of the branch you built the change on, exactly as it appears in your fork. The
-naming shape is a type prefix, then the issue number, then a short description. **The issue
-number in the branch name must be the number of the issue you claimed** — a name carrying
-any other number does not satisfy this field.]
+fix/56-chunker-no-headings
 
 **Evidence**
 
-[Your Unit 2 reproduction steps re-run against the built change: the before, then the
-after. Paste both, including the commands you ran and their output.]
+Repro steps from my Unit 2 comment on issue #56, run in a fresh Python 3.13.7 venv (tiktoken 0.14.0, pytest 9.1.1) from the repo root, on `main` at 99673c7 (before) and on the branch (after).
+
+Before:
+
+```
+$ PYTHONPATH=. venv/bin/python repro.py
+plain text, len 1000 -> 0 chunks
+same text with '# Title' heading -> 1 chunks; heading_path: Title
+
+$ venv/bin/python -m pytest tests/unit/test_structural_chunker.py -q --runxfail
+FAILED tests/unit/test_structural_chunker.py::TestStructuralChunker::test_document_with_no_headings
+1 failed, 14 passed
+```
+
+After (the change adds a no-headings fallback in `_extract_sections` and removes the xfail marker):
+
+```
+$ PYTHONPATH=. venv/bin/python repro.py
+plain text, len 1000 -> 1 chunks
+same text with '# Title' heading -> 1 chunks; heading_path: Title
+
+$ venv/bin/python -m pytest tests/unit/test_structural_chunker.py -q
+...............                                                          [100%]
+15 passed
+
+$ PYTHONPATH=. venv/bin/python -c "<chunk the plain text, print len, heading_path, text == whole document>"
+1 '' True
+```
+
+The documents with headings behave as before. The no-heading document now gives one chunk containing the whole text, with an empty `heading_path`.
 
 ## Eval iterations
 
@@ -50,28 +69,23 @@ fields.
 
 **Run history**
 
-[The agreement score of each run you did, in order. A single run is a complete answer if
-only one run occurred. **The last score in your list must match the agreement line in the
-`eval-run.txt` you committed** — that file is the record of your final run.]
+19/20. This is the only full run that produced a score, and it is the one saved as `eval-run.txt`, whose agreement line reads: "agreement: 19/20 scored items  (bar: 18/20: PASS)". My first attempt crashed before grading anything because the `claude` command was not on my shell's PATH, so it has no score. After fixing that I ran the full eval once, it passed the bar, and the category tally was "clear-accept 6/7  scope-creep 4/4  thread-convention 2/2  unbuildable 3/3  wrong-cause 4/4". Afterwards I re-graded only pkg-14 with `--only` to read why it failed; that partial run is not a scored run, so the last scored run is still the 19/20 one.
 
 **Package analysis**
 
-[Pick one scored package (`pkg-01` through `pkg-20` — the four `calib-` packages are never
-scored). Name it by id, say what your rubric decided and what the gold label said, and
-explain why your rubric read it that way.]
+pkg-14 (zellij#5174, OSC color responses leaking on session reattach). The gold label is accept. In the saved run my rubric said reject, failing it on "Stranger could start". The plan's diagnosis is well grounded (reattach is the only place it leaks, 0.44.1 is clean) and its test plan is concrete, but its Files section says "exact functions to be pinned in the PR after tracing the query issuance with debug logs", and my check fails a plan that "defers the real decisions to build time". That plan names the area (the attach path in `zellij-server` and the query issuance in `zellij-client`) and one approach, but no function. When I re-graded pkg-14 alone, the same rubric passed it, with the evidence line "only exact functions deferred to tracing", and the verdict was accept. So the check sits right on the edge for this package: whether naming an area but not a function counts as "deferring the real decision" depends on how the grader reads that clause, and the saved run read it strictly. I read pkg-14 as an arguable call and did not loosen the check to chase it.
 
 **Check rationale**
 
-[Quote one check from the `rubric.md` you uploaded to `tools/plan-check/`, exactly as it reads now.
-Then say why it reads that way — what you revised to get there, or what you rejected in
-favour of it.]
+The `Stranger could start` row of `tools/plan-check/rubric.md`, as it reads now:
+
+> A stranger could begin work without asking the author: the plan names the concrete files or areas, and the chosen approach (one approach, not a menu). FAIL if the plan defers the real decisions to build time ("somewhere", "whichever is easier", "investigate first", "not sure which layer"), names no files, or is only intent. Terse is fine if the file, the change, and the approach are all named.
+
+It reads this way because the failure I want to catch is a plan that cannot be started without asking the author, such as "somewhere" or a menu of approaches. It accepts "files or areas" so that a plan which names the right area but not the exact function can still pass, and pkg-14 shows the edge of that: the wording "exact functions to be pinned in the PR" still tripped the "defers to build time" clause.
 
 **Trade-offs**
 
-[Every check gives something up. Any one of these is a complete answer: a package whose
-result it changes, a canary you re-ran with `--only`, a case you accept it will miss, or a
-stated reason nothing changed elsewhere. "Nothing changed, and here is how I know" earns
-the point in full when the reason follows.]
+Keeping "defers the real decisions to build time" as a failure is what rejects the three unbuildable packages (pkg-10, pkg-17, pkg-18), which all matched their reject labels. The price is pkg-14: a correct plan that honestly says "I will pin the exact function after tracing" can be rejected, and the saved run did reject it, though the single re-grade accepted it. I did not change the rubric after the run, so there are no canaries to report. I left it because loosening it risks the unbuildable category, and 19/20 clears the bar with every category matched.
 
 ---
 
