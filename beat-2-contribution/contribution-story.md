@@ -11,7 +11,7 @@ files and no evidence uploads are part of Assignment 5.
 **Student:** Adewale Abodunde
 **GitHub Username:** Wayles3
 **Issue:** https://github.com/cabotage/cabotage-app/issues/375
-**Pull Request:** pending (branch `add-process-filter-to-audit-log` is committed locally; PR not opened yet, 2026-11-17)
+**Pull Request:** https://github.com/cabotage/cabotage-app/pull/509
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -135,7 +135,7 @@ macOS (Darwin 25.6, Apple Silicon) with Docker. I forked cabotage/cabotage-app t
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** I did not make a separate reproduction commit. I wrote the tests first and ran them against the unmodified code by stashing my source change, so the reproduction lives in the test file `tests/test_audit_process_filter.py` in my commit on branch `add-process-filter-to-audit-log` (local, not yet pushed; link pending).
+- **Commit showing reproduction:** I did not make a separate reproduction commit. I wrote the tests first and ran them against the unmodified code by stashing my source change, so the reproduction lives in the test file `tests/test_audit_process_filter.py` in my commit on branch `add-process-filter-to-audit-log` (pushed to my fork and opened as the PR above).
 - **Screenshots/logs:** `make test ARGS='-k process_filter --no-cov'` on the unmodified code: `3 failed, 1 passed, 1209 deselected`. The failures were `test_process_filter_keeps_only_that_process`, `test_process_filter_pill_and_pagination_carry_the_filter` and `test_unknown_process_shows_no_entries`; the passing one was the unfiltered baseline.
 - **My findings:** the filter parameter is silently ignored, as the issue says. The data is there: scale events store changes keyed by process name in the `raw_data` column of the `audit_log` view. Other entry types (deploys, config changes) carry no process name.
 
@@ -197,7 +197,7 @@ Chose #375 after grading seven candidates. Forked and cloned cabotage-app, read 
 
 **2026-11-17**
 
-Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. Switched to starting only Postgres and Redis, and hit a port clash with another project's Redis, so ran a separate Redis container. Wrote the tests first and confirmed 3 of 4 failed on unmodified code, then implemented the filter. Full suite 1213 passed; lint and format clean. Committed locally as "Add process filter to the audit log". Posting upstream was blocked in my tooling session, so I posted the claim comment myself (https://github.com/cabotage/cabotage-app/issues/375#issuecomment-6958956958); the PR is still pending.
+Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. Switched to starting only Postgres and Redis, and hit a port clash with another project's Redis, so ran a separate Redis container. Wrote the tests first and confirmed 3 of 4 failed on unmodified code, then implemented the filter. Full suite 1213 passed; lint and format clean. Committed locally as "Add process filter to the audit log". Posting upstream was blocked in my tooling session, so I posted the claim comment myself (https://github.com/cabotage/cabotage-app/issues/375#issuecomment-6958956958); I opened the PR the same day (https://github.com/cabotage/cabotage-app/pull/509).
 
 **Toolkit**
 
@@ -210,22 +210,22 @@ Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. 
 
 ## Pull Request
 
-**PR Link:** pending, not opened yet (2026-11-17)
+**PR Link:** https://github.com/cabotage/cabotage-app/pull/509
 
 **PR Description:** Adds a `?process=<name>` filter to the audit log (removable pill, kept through pagination) and a History link on each process card on the application page. Only scale events carry a process name, so the filter covers scaling history for a process. Four route tests added; full suite, lint and format pass. AI assistance disclosure: I used Claude Code to help trace the code and draft the change, and I reviewed and tested it.
 
 **Maintainer Feedback:**
 
-- 2026-11-17: none yet. My claim comment is posted; the PR is not opened yet.
+- 2026-11-17: none yet; PR opened and awaiting review.
 
-**Status:** Not yet opened. The branch is committed locally.
+**Status:** Awaiting review (opened 2026-11-17).
 
 **Toolkit**
 
 - Tool: gh CLI for the issue, and git.
-- What it produced: a fork and a committed branch.
+- What it produced: a fork, a committed branch, and PR #509.
 - Difficulties: posting upstream was blocked in my tooling session.
-- What changed: I posted the claim comment myself and will open the PR myself.
+- What changed: I posted the claim comment and opened the PR myself from my terminal.
 
 ---
 
