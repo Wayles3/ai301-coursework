@@ -55,9 +55,9 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 9: Built an issue-scout with my own search queries and a rubric fix**
+**Unit 9: Built an issue-scout with my own search queries, then fixed three rubric gaps**
 
-I replaced my unit 5 grader with the issue-scout skill and wrote a search strategy: three `gh search issues` queries (Swift good-first-issue bugs, Swift good-first-issue, TypeScript help-wanted bugs) plus ranking filters traced to my fit profile. My first scan graded five issues and accepted all five, but two things were wrong. The rubric passed flisk-sh/flisk#4426 even though it was blocked on an upstream Kiri release, and my "fewest comments first" ordering filled the top five with TypeScript and Go issues opened that day and no Swift at all. I added a "blocked on upstream" fail condition to the rubric's "Scope is bounded" check, made the Swift queries rank first, and dropped results labelled blocked or upstream. I haven't rerun the scan to confirm the fixes work, so they're untested.
+I replaced my unit 5 grader with the issue-scout skill and wrote a search strategy: three `gh search issues` queries (Swift good-first-issue bugs, Swift good-first-issue, TypeScript help-wanted bugs) plus ranking filters traced to my fit profile. My first scan graded five issues and accepted all five, but it let through flisk-sh/flisk#4426, which was blocked on an upstream release, and my "fewest comments first" order filled the top five with TypeScript and Go issues and no Swift. Grading my own picks exposed two more gaps: the rubric had no "issue is open" check (spotatui#822 was already fixed and closed), and a dependabot burst made it reject christianliebel/paint#1067 because its last five commits were all bot bumps. I added a "blocked on upstream" condition to "Scope is bounded", a required "Issue is open" check, and a rule to skip dependency-bot commits. Regrading #1067 then flipped it to accept, so that fix is tested. The upstream-blocked fix and the Swift-first ordering are untested because I never rescanned. Across seven graded issues, two were rejected for stale open PRs (ArduPilot #32090 and #31107) and I chose cabotage/cabotage-app#375, which passed every required check.
 
 **Unit 6: [one line on the tool work]**
 
