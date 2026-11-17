@@ -1,4 +1,4 @@
-# Contribution: [Issue Title]
+# Contribution: Filter audit log for a process
 
 Path: `beat-2-contribution/contribution-story.md`
 
@@ -7,12 +7,11 @@ the repository is not read. **Keep every section header below under its exact na
 format criteria grade exactly that. Your course repo link is the whole submission: no tool
 files and no evidence uploads are part of Assignment 5.
 
-**Contribution Number:** [1]
-**Student:** [Student name]
-**GitHub Username:** [your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comments upstream are identified by this name.]
-**Issue:** [GitHub issue link]
-**Pull Request:** [GitHub PR link, once opened]
+**Contribution Number:** 1
+**Student:** Adewale Abodunde
+**GitHub Username:** Wayles3
+**Issue:** https://github.com/cabotage/cabotage-app/issues/375
+**Pull Request:** pending (branch `add-process-filter-to-audit-log` is committed locally; PR not opened yet, 2026-11-17)
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -79,24 +78,18 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs in your own words: how you searched, what your scan
-surfaced, what your scout's verdict said, why this issue fits your
-profile, and what you hope to learn. If your scout's verdict on it
-was reject and you chose it anyway, say so here and say why; choosing
-against your own tool silently is what loses points. Close with an
-honest read of the tool itself: where the scout fell short on a real
-wild search and what you changed or would change, or what convinced
-you it held up. **Record the link to your claim comment in this section too.**
-Not claimed yet? Write `claim pending` and today's date where the link goes,
-and add the link the moment your claim lands.]
+I searched with my own issue-scout: three `gh search issues` queries built from my fit profile (Swift good-first-issue bugs, Swift good-first-issue, TypeScript help-wanted bugs), ranked by fewest comments. The scan surfaced flisk and Lelu issues and no Swift ones, so I also graded issues I found on the Issue Selection site: ArduPilot #32090 and #31107 (rejected, stale open PRs), spotatui #822 (rejected, already closed), paint #1067 (rejected, then accepted after I fixed the rubric), Altinn dialogporten #2427 (accepted but vague, "Implementation: TBD") and cabotage-app #375 (accepted, every required check passed). I chose #375 because it is a bounded, well-specified feature on a Python/Flask codebase: the audit data already exists and the maintainer's thread names the two pieces (a filter on `/audit` and a small icon on the process cards). It fits my profile of bounded work I can finish and have reviewed, with no architectural change, and I want practice with the issue, PR and review workflow on a real team codebase. The scout's verdict on it was accept.
+
+My claim comment link: claim pending 2026-11-17. The comment is written but not posted yet, because posting upstream was blocked in my tooling session. I will post it myself and record the link here.
+
+Honest read of the scout: it held up on the repo-health checks (it correctly rejected the two ArduPilot issues for stale open PRs), but it fell short on real repos in four ways. It accepted an issue blocked on an upstream release, it had no "issue is open" check, a dependabot burst made it reject a live repo, and its ranking order buried every Swift result. I patched all four in the rubric and search strategy. The dependabot fix and the "issue is open" check were tested; the other two were not. One caveat it could not settle for #375: the repo looks single-maintainer, and the maintainer's fast replies were on his own issues, so I do not know how quickly he reviews outside PRs.
 
 **Toolkit**
 
-- Tool: issue-scout (your scout: your search strategy, your rubric),
-  and how you used it
-- What it produced: [the scan and its verdict on this issue, described]
-- Difficulties: [where it fell short, or "none met" if none did]
-- What changed: [what you patched or would update, or "nothing"]
+- Tool: issue-scout (my search strategy and my rubric), run as a scan plus direct-URL grades of my picks.
+- What it produced: a scan that accepted all five of its top picks, and a read-out per pick; for #375 an accept with every required check passing, a weak pass on acceptance criteria, and a note that maintainer responsiveness to outsiders was unproven.
+- Difficulties: the blocked-upstream miss, no open-issue check, the dependabot misread, and the all-TypeScript ordering. The headless runs also needed tool permissions I had to grant narrowly (`gh`, `python3`).
+- What changed: three rubric fixes (blocked on upstream, issue is open, skip dependency-bot commits) and a Swift-first ordering in search-strategy.md. I did not rescan, so the ordering and blocked-upstream fixes are untested.
 
 ---
 
@@ -104,19 +97,19 @@ and add the link the moment your claim lands.]
 
 **Problem Description**
 
-[In your own words, what is broken or missing?]
+Cabotage's audit log lists what happened to an application, but the only filters are verb and object type. There is no way to see the history of one Procfile process, such as `web` or `worker`, even though scale events already record changes per process name.
 
 **Expected Behavior**
 
-[What should happen?]
+I should be able to filter the audit log to one process (for example `/audit?process=worker`), and each process card on the application page should link straight to that process's filtered history.
 
 **Current Behavior**
 
-[What actually happens?]
+`/audit?process=worker` is ignored and shows every entry, and the process cards have no link to the audit log. I confirmed this by running new tests against the unmodified code: the filter tests failed and the unfiltered test passed.
 
 **Affected Components**
 
-[Which parts of the codebase are involved?]
+`cabotage/server/user/views.py` (`_render_audit_log`, shared by all four audit scopes), `cabotage/client/templates/user/audit_log.html` (filter pills, script and pagination links), `cabotage/client/templates/user/project_application.html` (the process cards), and the `audit_log` SQL view in `cabotage/server/models/audit.py`, whose `raw_data` column holds the per-process changes.
 
 **Toolkit**
 
@@ -131,31 +124,27 @@ and add the link the moment your claim lands.]
 
 **Environment Setup**
 
-[What a stranger would need to stand this up: your operating system,
-the relevant versions (language, runtime, package manager, the project
-itself), and how you set the project up. Then the challenges you faced
-and how you solved them, or that none came up.]
+macOS (Darwin 25.6, Apple Silicon) with Docker. I forked cabotage/cabotage-app to Wayles3/cabotage-app, cloned it, and added the upstream remote. The project runs in Docker Compose: the `base` image installs Python dependencies with uv, with Postgres 16 and Redis 7 as services. I ran the project's own `make test` and `make lint`. Challenges: `make start` failed because pulling the extra service images (consul, vault, minio, registry and others) did not complete, but tests only need Postgres and Redis, so I started just `db`. Port 6379 was already used by another project's Redis on my machine, so I ran a separate Redis container on the project's Compose network with the alias `redis` instead of touching the other one. I created the `cabotage_test` database with the extensions the Makefile uses.
 
 **Steps to Reproduce**
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Create an org, project, application and environment, and record two scale events on the application: `web` 1 to 2 and `worker` 0 to 3.
+2. Load the application audit page `/projects/<org>/<project>/applications/<app>/audit`: two entries show, as expected.
+3. Load the same page with `?process=worker`: both entries still show (expected one), and no process pill appears.
+4. Open the process cards on the application page: there is no link to the audit log.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** [link to commit in your fork]
-- **Screenshots/logs:** [if applicable]
-- **My findings:** [what you discovered during reproduction; an
-  honest, evidenced cannot-reproduce that led you to re-pick or ask
-  the maintainer belongs here and costs you nothing]
+- **Commit showing reproduction:** I did not make a separate reproduction commit. I wrote the tests first and ran them against the unmodified code by stashing my source change, so the reproduction lives in the test file `tests/test_audit_process_filter.py` in my commit on branch `add-process-filter-to-audit-log` (local, not yet pushed; link pending).
+- **Screenshots/logs:** `make test ARGS='-k process_filter --no-cov'` on the unmodified code: `3 failed, 1 passed, 1209 deselected`. The failures were `test_process_filter_keeps_only_that_process`, `test_process_filter_pill_and_pagination_carry_the_filter` and `test_unknown_process_shows_no_entries`; the passing one was the unfiltered baseline.
+- **My findings:** the filter parameter is silently ignored, as the issue says. The data is there: scale events store changes keyed by process name in the `raw_data` column of the `audit_log` view. Other entry types (deploys, config changes) carry no process name.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the repo's own Docker/Make test setup, and Claude Code to read the code and run it.
+- What it produced: a failing-then-passing test as the reproduction.
+- Difficulties: the full stack would not start (image pulls), and a Redis port conflict with another project.
+- What changed: ran only the services the tests need, and used a separate Redis container.
 
 ---
 
@@ -163,93 +152,80 @@ and how you solved them, or that none came up.]
 
 **Analysis**
 
-[Your analysis of the root cause: what is causing the issue, traced
-to the files and functions involved.]
+`_render_audit_log` in `cabotage/server/user/views.py` reads only `verb`, `type`, `before` and `after` from the query string, so `process` is never looked at. Scale activities are stored against the Application with `raw_data["changes"]` keyed by process name (written by the scale handler around line 6580), so a process filter can be expressed as "the entry's `changes` object has this key".
 
 **Proposed Solution**
 
-[High-level description of your fix approach, and what you are
-deliberately NOT changing.]
+Read `?process=<name>` in `_render_audit_log` and filter with `AuditLog.raw_data["changes"].has_key(name)`, applying it to the entries query and to the verb and type option queries. Show it as a removable pill, keep it in the pagination links and the filter script, and add a History link on each process card that opens the application audit log with `process=<name>`. I am deliberately NOT changing the SQL view or adding a process column, not adding a process filter to deploy or config entries (they carry no process), and not adding a dropdown of processes.
 
 **Implementation Plan**
 
-1. [Modify file X to do Y]
-2. [Add or change Z]
-3. [Update tests]
+1. Add the `process` query parameter and filter in `views.py`, and pass `process_filter` to the template.
+2. Update `audit_log.html`: pill, clear button, filter script, and pagination links.
+3. Add the History link to the process cards in `project_application.html`.
+4. Add tests in `tests/test_audit_process_filter.py` and run the full suite, lint and format.
 
-[Record deviations here as they happen: what changed mid-build and
-why. A recorded deviation is honest work; silent drift is not.]
+No deviations from this plan during the build.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code, used to trace the audit view and draft the change; I reviewed the diff.
+- What it produced: the plan above and the change itself.
+- Difficulties: the issue does not say what counts as an audit entry for a process, so I had to infer it from scale events and ask in the claim comment.
+- What changed: I narrowed the scope to scale events and said so in the claim comment.
 
 ---
 
 ## Testing Strategy
 
-[What observable checks prove the fix: your reproduction steps re-run
-against the built change (before and after), and the repo's own test
-suite or checks with the outcome shown. "Tests pass" with nothing
-observable named is not a strategy.]
+Before and after, with the same four route tests in `tests/test_audit_process_filter.py`: they create two scale events (`web`, `worker`) and request the application audit page. Observable checks: with no filter there are 2 `audit-row` entries; with `?process=worker` there is 1 entry and the text `process: worker`; with `?process=web` there is 1 entry and a `data-filter-type="process"` pill; with `?process=nope` there are 0 entries. Before the change 3 of the 4 failed; after it all 4 pass. I then ran the repo's full suite with `make test ARGS='--no-cov'`: 1213 passed in 8 minutes 31 seconds, and `make lint` and `make fmt` came back clean. I have not looked at the rendered page in a browser, so the History link layout on the process cards is verified by template rendering only.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: pytest through `make test`, plus ruff through `make lint` and `make fmt`.
+- What it produced: 3 failing then all passing tests, and 1213 passing in the full run.
+- Difficulties: the first draft of two assertions was meaningless (`or True`); I replaced them with row counts. `make lint` flagged formatting, fixed by `make fmt`.
+- What changed: tightened the tests and applied the formatter.
 
 ---
 
 ## Implementation Notes
 
-[A running log, added to as you work. Date each entry. What you
-built, decisions you made when you made them, wrong turns included.]
+**2026-11-17**
 
-**[Date]**
+Chose #375 after grading seven candidates. Forked and cloned cabotage-app, read CONTRIBUTING.md (it asks contributors to comment on the issue and tag the author before starting). Traced the audit page to `_render_audit_log` and found scale events carry process names in `raw_data["changes"]`.
 
-[Entry]
+**2026-11-17**
 
-**[Date]**
-
-[Entry]
+Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. Switched to starting only Postgres and Redis, and hit a port clash with another project's Redis, so ran a separate Redis container. Wrote the tests first and confirmed 3 of 4 failed on unmodified code, then implemented the filter. Full suite 1213 passed; lint and format clean. Committed locally as "Add process filter to the audit log". Posting the claim comment upstream was blocked in my tooling session, so the claim and the PR are still pending.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code for tracing and drafting; the Makefile for tests.
+- What it produced: the working change and this log.
+- Difficulties: environment setup and the blocked upstream post.
+- What changed: I will post the claim comment myself and update the claim and PR fields here.
 
 ---
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when opened]
+**PR Link:** pending, not opened yet (2026-11-17)
 
-**PR Description:** [what the PR says; much of the content above
-adapts into it]
+**PR Description:** Adds a `?process=<name>` filter to the audit log (removable pill, kept through pagination) and a History link on each process card on the application page. Only scale events carry a process name, so the filter covers scaling history for a process. Four route tests added; full suite, lint and format pass. AI assistance disclosure: I used Claude Code to help trace the code and draft the change, and I reviewed and tested it.
 
 **Maintainer Feedback:**
 
-- [Date]: [feedback received, or "none yet"; silence is a normal
-  state and costs you nothing]
-- [Date]: [how you addressed it]
+- 2026-11-17: none yet, nothing has been posted upstream.
 
-**Status:** [Awaiting review / Iterating / Merged / Closed. The
-status is a fact you record, never a grade: the PR is graded as
-opened.]
+**Status:** Not yet opened. The branch is committed locally.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: gh CLI for the issue, and git.
+- What it produced: a fork and a committed branch.
+- Difficulties: posting upstream was blocked in my tooling session.
+- What changed: I will post the claim comment and open the PR myself.
 
 ---
 
@@ -257,25 +233,20 @@ opened.]
 
 **Technical Skills Gained**
 
-[What you learned technically, named concretely.]
+Reading a SQL-view-backed audit log and filtering it by a key inside a JSONB column (`raw_data["changes"].has_key`), writing Flask route tests with a logged-in session and Activity rows, and running a Docker Compose Makefile workflow without the full stack.
 
 **Challenges Overcome**
 
-[What was hard and how you solved it; point at the real events, the
-Toolkit blocks above are full of them.]
+The full stack would not start, so I ran only Postgres and Redis and resolved a port clash with another project's Redis. My own scout also misjudged real repos four times (see the Toolkit blocks above), and fixing the rubric from those misses was the most useful part of the week.
 
 **What I'd Do Differently Next Time**
 
-[Reflection on your process.]
+Post the claim comment on the issue as soon as I commit to it, before writing any code, and check what I can and cannot do from my tooling before relying on it for the PR.
 
 ---
 
 ## Resources Used
 
-[What actually helped, not a reading list. List things this story
-already shows you using: the doc you followed to set the environment
-up, the thread that explained the bug, the person who answered you.
-One real entry beats ten plausible ones.]
-
-- [Link to documentation that helped]
-- [Discussion, issue, or post that helped]
+- cabotage-app CONTRIBUTING.md: the setup, test and commit-message conventions, and the instruction to comment on the issue first.
+- cabotage/cabotage-app issue #375: the maintainer thread that defined the scope (a filter on `/audit` plus icons on the process cards).
+- The repo's `Makefile` targets `make test`, `make lint` and `make fmt`.
