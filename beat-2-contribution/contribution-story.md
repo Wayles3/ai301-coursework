@@ -55,10 +55,9 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 5: [one line on the tool work]**
+**Unit 9: Built an issue-scout with my own search queries and a rubric fix**
 
-[2-4 sentences: what you built (the scout, your strategy), what broke
-or fell short, what changed because of it.]
+I replaced my unit 5 grader with the issue-scout skill and wrote a search strategy: three `gh search issues` queries (Swift good-first-issue bugs, Swift good-first-issue, TypeScript help-wanted bugs) plus ranking filters traced to my fit profile. My first scan graded five issues and accepted all five, but two things were wrong. The rubric passed flisk-sh/flisk#4426 even though it was blocked on an upstream Kiri release, and my "fewest comments first" ordering filled the top five with TypeScript and Go issues opened that day and no Swift at all. I added a "blocked on upstream" fail condition to the rubric's "Scope is bounded" check, made the Swift queries rank first, and dropped results labelled blocked or upstream. I haven't rerun the scan to confirm the fixes work, so they're untested.
 
 **Unit 6: [one line on the tool work]**
 
