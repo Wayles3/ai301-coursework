@@ -62,10 +62,9 @@ I replaced my unit 5 grader with the issue-scout skill and wrote a search strate
 
 I extended my voice guide with an Upstream section (claims, questions, pings, each rule with a wrong/right pair), installed the voice-guard hook, and wrote a 29-line `CLAUDE.local.md` for cabotage-app (CONTRIBUTING rules, the audit subsystem files, test commands), excluded from my PR with `.git/info/exclude`. The wiring test blocked a body-less `gh issue comment --help` and logged the stop, so the hook fires. What fell short: I had already posted my claim by hand before installing the guard, and repro-check then failed it for promising "a PR up in the next day or two". The guard also stopped my revised draft three times, on rules about marking what I observed versus guessed, giving a concrete first step, and labelling unverified claims, and the draft passed on the fourth try. I revised the draft but have not yet edited the posted comment.
 
-**Unit 7: [one line on the tool work]**
+**Unit 11: Installed the ship-gate and wrote a manifest for cabotage-app**
 
-[2-4 sentences: the ship-gate and your gate manifest. What it produced
-on your real branch, what fought you, what changed because of it.]
+I wrote a ship manifest with the project's own checks (`make lint`, `make type-check`, `make test`), tested that both my voice guard and the ship-gate stop `gh pr create --help`, and ran the gate on my branch. It said PASS after running all three checks and my pr-precheck. What fell short: I had opened PR #509 before installing the gate, so it never ran on opening. Building the manifest made me run `make type-check` and `make security-check`, which I had skipped and which CI runs. pr-precheck then pointed out an over-claiming test name and that my review request did not say what I had checked against the maintainer's direction, and I fixed both in a new commit and an updated description. It did not catch that the repo's PR template was ignored by my first description, which I only found myself.
 
 **Unit 8: [one line on the tool work]**
 
@@ -154,23 +153,23 @@ macOS (Darwin 25.6, Apple Silicon) with Docker. I forked cabotage/cabotage-app t
 
 **Proposed Solution**
 
-Read `?process=<name>` in `_render_audit_log` and filter with `AuditLog.raw_data["changes"].has_key(name)`, applying it to the entries query and to the verb and type option queries. Show it as a removable pill, keep it in the pagination links and the filter script, and add a History link on each process card that opens the application audit log with `process=<name>`. I am deliberately NOT changing the SQL view or adding a process column, not adding a process filter to deploy or config entries (they carry no process), and not adding a dropdown of processes.
+Read `?process=<name>` in `_render_audit_log` and filter with `AuditLog.raw_data["changes"].has_key(name)`, applying it to the entries query and to the verb and type option queries. Show it as a removable pill, keep it in the pagination links and the filter script, and add a History link on each process card that opens the application audit log with `process=<name>`. I am deliberately NOT changing the SQL view or adding a process column, not adding a process filter to deploy or config entries (unverified: from reading the SQL view I believe they carry no process name, but I have not run those entry types), and not adding a dropdown of processes.
 
 **Implementation Plan**
 
 1. Add the `process` query parameter and filter in `views.py`, and pass `process_filter` to the template.
 2. Update `audit_log.html`: pill, clear button, filter script, and pagination links.
 3. Add the History link to the process cards in `project_application.html`.
-4. Add tests in `tests/test_audit_process_filter.py` and run the full suite, lint and format.
+4. Add four route tests in `tests/test_audit_process_filter.py`, each requesting the application audit page after recording two scale events (`web` 1 to 2, `worker` 0 to 3): no filter shows 2 entries; `?process=worker` shows 1 entry and the text `process: worker`; `?process=web` shows 1 entry and a `data-filter-type="process"` pill; `?process=nope` shows 0 entries. Before the fix 3 of them must fail; after it all 4 must pass. Then run `make test` (full suite), `make lint` and `make type-check`.
 
 No deviations from this plan during the build.
 
 **Toolkit**
 
-- Tool: Claude Code, used to trace the audit view and draft the change; I reviewed the diff.
-- What it produced: the plan above and the change itself.
-- Difficulties: the issue does not say what counts as an audit entry for a process, so I had to infer it from scale events and ask in the claim comment.
-- What changed: I narrowed the scope to scale events and said so in the claim comment.
+- Tool: plan-check, with the wild scope installed, run on `plan.md` (this section) and a draft plan comment.
+- What it produced: reject on the first run. My test plan said only "add tests and run the suite" with no cases or expected outcome, and I stated that deploy and config entries "carry no process" as fact when I had not run them. After I named the four test cases with before and after outcomes and labelled the deploy and config claim unverified, it accepted.
+- Difficulties: the plan was written after I had already built the fix, so plan-check graded a plan that had not been used to steer anything.
+- What changed: I rewrote the Implementation Plan's test step and the Proposed Solution wording, and copied both back into this section. I did not post the plan comment.
 
 ---
 
@@ -180,10 +179,10 @@ Before and after, with the same four route tests in `tests/test_audit_process_fi
 
 **Toolkit**
 
-- Tool: pytest through `make test`, plus ruff through `make lint` and `make fmt`.
-- What it produced: 3 failing then all passing tests, and 1213 passing in the full run.
-- Difficulties: the first draft of two assertions was meaningless (`or True`); I replaced them with row counts. `make lint` flagged formatting, fixed by `make fmt`.
-- What changed: tightened the tests and applied the formatter.
+- Tool: pytest through `make test`, ruff through `make lint`, ty and pyrefly through `make type-check`, and my own `test_evidence.md` to keep the before and after output together.
+- What it produced: the before output (`assert 2 == 1`, 3 of 4 failing), the after output (4 passing, 57 audit tests, 1213 in the full suite), and clean lint, type-check and security-check runs.
+- Difficulties: I had only run lint and tests; the CI file also runs type-check and bandit, so I added `make type-check` and ran `make security-check` once the manifest made me list the project's real checks. Both passed.
+- What changed: the manifest now lists lint, type-check and tests, and the first two assertions I wrote earlier (with `or True`) were replaced with row counts.
 
 ---
 
@@ -196,6 +195,10 @@ Chose #375 after grading seven candidates. Forked and cloned cabotage-app, read 
 **2026-11-17**
 
 Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. Switched to starting only Postgres and Redis, and hit a port clash with another project's Redis, so ran a separate Redis container. Wrote the tests first and confirmed 3 of 4 failed on unmodified code, then implemented the filter. Full suite 1213 passed; lint and format clean. Committed locally as "Add process filter to the audit log". Posting upstream was blocked in my tooling session, so I posted the claim comment myself (https://github.com/cabotage/cabotage-app/issues/375#issuecomment-6958956958); I opened the PR the same day (https://github.com/cabotage/cabotage-app/pull/509).
+
+**2026-11-17 (later)**
+
+Installed the ship-gate and listed the project's real checks in a manifest. That made me run `make type-check` and `make security-check`, which I had skipped; both passed. plan-check rejected my first plan (no named test cases, an unverified claim stated as fact), so I fixed the plan. The ship-gate passed my branch. Wrong turn: my PR description had ignored the repo's PR template, so I rewrote it and renamed an over-claiming test in a new commit.
 
 **Toolkit**
 
@@ -210,20 +213,21 @@ Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. 
 
 **PR Link:** https://github.com/cabotage/cabotage-app/pull/509
 
-**PR Description:** Adds a `?process=<name>` filter to the audit log (removable pill, kept through pagination) and a History link on each process card on the application page. Only scale events carry a process name, so the filter covers scaling history for a process. Four route tests added; full suite, lint and format pass. AI assistance disclosure: I used Claude Code to help trace the code and draft the change, and I reviewed and tested it.
+**PR Description:** I answered every section of the repo's own PR template (Description, Reference to issue, Review request, Breaking changes). Description: adds a `?process=<name>` filter to the audit log in `_render_audit_log` (all four scopes), a removable pill, pagination and clear-button support in `audit_log.html`, a History link on each process card in `project_application.html`, and four route tests. It names the scope limit (only scale events carry a process name; the deploy and config claim is labelled unverified) and the unchecked browser rendering. Reference: `Fixes #375`. Evidence: before, `assert 2 == 1` and `3 failed, 1 passed` on unmodified main; after, 4 passing, 1213 in the full suite, and clean lint, type-check and security-check. It also carries an AI-assistance disclosure in my own words.
 
 **Maintainer Feedback:**
 
 - 2026-11-17: none yet; PR opened and awaiting review.
+- 2026-11-17: no reviewer feedback to address, but the ship-gate's pr-precheck pointed out a test name that overstated what it checks, so I renamed it in a new commit (not a force-push, as CONTRIBUTING asks) and updated the PR description.
 
 **Status:** Awaiting review (opened 2026-11-17).
 
 **Toolkit**
 
-- Tool: gh CLI for the issue, and git.
-- What it produced: a fork, a committed branch, and PR #509.
-- Difficulties: posting upstream was blocked in my tooling session.
-- What changed: I posted the claim comment and opened the PR myself from my terminal.
+- Tool: the ship-gate (my `ship-manifest.md` plus pr-precheck), run by hand on my branch with `check_gate.py --branch`.
+- What it produced: PASS. It ran `make lint` (2s), `make type-check` (3s) and `make test` (522s), then pr-precheck, which passed diff-matches-plan, description-matches-diff, decisive test evidence, reviewable diff and template-and-disclosure. It also noted that a test name overstated its assertion and that my review request did not say what I had checked against the maintainer's direction.
+- Difficulties: I opened PR #509 by hand before the ship-gate existed, so the gate never ran on opening. It also showed me that the repo has a `pull_request_template.md` that my first PR description ignored.
+- What changed: I rewrote the description to answer every template section and added the direction-check line. I renamed the test in a new commit and pushed it, without rebasing.
 
 ---
 
