@@ -66,10 +66,9 @@ I extended my voice guide with an Upstream section (claims, questions, pings, ea
 
 I wrote a ship manifest with the project's own checks (`make lint`, `make type-check`, `make test`), tested that both my voice guard and the ship-gate stop `gh pr create --help`, and ran the gate on my branch. It said PASS after running all three checks and my pr-precheck. What fell short: I had opened PR #509 before installing the gate, so it never ran on opening. Building the manifest made me run `make type-check` and `make security-check`, which I had skipped and which CI runs. pr-precheck then pointed out an over-claiming test name and that my review request did not say what I had checked against the maintainer's direction, and I fixed both in a new commit and an updated description. I found the repo's PR template, which my first description had ignored, myself while writing the gate's description file; the gate only ever read the revised one.
 
-**Unit 8: [one line on the tool work]**
+**Unit 12: Installed the PR monitor and wrote a playbook from cabotage-app's real merge history**
 
-[2-4 sentences: the PR-monitor and your playbook. What it read, what it
-drafted, what you did with the draft.]
+I installed the PR monitor and wrote a four-section playbook, setting the nudge threshold from data: cabotage's CONTRIBUTING.md says review is "usually within a few weeks", and five merged PRs from outside contributors waited 0, 4, 4, 36 and 53 days to merge, so I chose one nudge after 14 quiet days and a walk-away at 45 days after that nudge. On my PR #509 (no comments or reviews yet) the monitor drafted "No nudge yet, write a wait note instead", with 2026-12-01 as the earliest date my threshold is met, and I agreed and posted nothing. It also flagged that no CI checks had reported, which I traced to both runs showing `action_required` (a maintainer has to approve first-time contributors' workflows), so there was nothing for me to fix. What fell short is that the monitor had nothing real to draft, since no maintainer has responded, so I have not tested its reply-to-reviewer path; I changed nothing in the playbook because of this run.
 
 ---
 
@@ -200,6 +199,10 @@ Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. 
 
 Installed the ship-gate and listed the project's real checks in a manifest. That made me run `make type-check` and `make security-check`, which I had skipped; both passed. plan-check rejected my first plan (no named test cases, an unverified claim stated as fact), so I fixed the plan. The ship-gate passed my branch. Wrong turn: my PR description had ignored the repo's PR template, so I rewrote it and renamed an over-claiming test in a new commit.
 
+**2026-11-17 (unit 12)**
+
+Installed the PR monitor and filled in a playbook using the repo's real merge history. The monitor read PR #509 (no comments, no reviews) and drafted a wait note, not a nudge, so I posted nothing. CI showed `action_required` on both runs: GitHub holds first-time contributors' workflows until a maintainer approves them. Nothing to change on the branch.
+
 **Toolkit**
 
 - Tool: Claude Code for tracing and drafting; the Makefile for tests.
@@ -217,10 +220,10 @@ Installed the ship-gate and listed the project's real checks in a manifest. That
 
 **Maintainer Feedback:**
 
-- 2026-11-17: none yet; PR opened and awaiting review.
+- 2026-11-17: none yet. No comments or reviews from anyone but me. CI shows `action_required` on both runs because GitHub holds a first-time contributor's workflows until a maintainer approves them, so no checks have reported; I cannot change that.
 - 2026-11-17: no reviewer feedback to address, but the ship-gate's pr-precheck pointed out a test name that overstated what it checks, so I renamed it in a new commit (not a force-push, as CONTRIBUTING asks) and updated the PR description.
 
-**Status:** Awaiting review (opened 2026-11-17).
+**Status:** Awaiting review (opened 2026-11-17; waiting on the maintainer).
 
 **Toolkit**
 
@@ -235,20 +238,22 @@ Installed the ship-gate and listed the project's real checks in a manifest. That
 
 **Technical Skills Gained**
 
-Reading a SQL-view-backed audit log and filtering it by a key inside a JSONB column (`raw_data["changes"].has_key`), writing Flask route tests with a logged-in session and Activity rows, and running a Docker Compose Makefile workflow without the full stack.
+Reading a SQL-view-backed audit log and filtering a JSONB column by key (`raw_data["changes"].has_key`), writing Flask route tests with a logged-in session and `Activity` rows, running a Docker Compose Makefile workflow with only the services the tests need, and using `gh` to read a repo's merge history and CI state.
 
 **Challenges Overcome**
 
-The full stack would not start, so I ran only Postgres and Redis and resolved a port clash with another project's Redis. My own scout also misjudged real repos four times (see the Toolkit blocks above), and fixing the rubric from those misses was the most useful part of the week.
+The full stack would not start (image pulls failed) and port 6379 was taken by another project's Redis, so I ran only Postgres and a separate Redis container. My scout also misjudged real repos several times (a blocked-upstream issue, no "issue is open" check, a dependabot burst, and my own claim read as a stranger's), and fixing the rubric from those misses was the most useful part of the term. In the PR stage, pr-precheck and plan-check each caught something real: an over-claiming test name, and a test plan with no cases. I also found on my own that my first PR description ignored the repo's PR template.
 
 **What I'd Do Differently Next Time**
 
-Post the claim comment on the issue as soon as I commit to it, before writing any code, and check what I can and cannot do from my tooling before relying on it for the PR.
+Post the claim comment as soon as I commit to the issue, run my voice guard on it first (my posted claim promised "a PR up in the next day or two", which my own guide forbids), and install the ship-gate before opening the PR instead of after, so it runs on opening. I would also read the repo's `.github/` folder for a PR template before writing the first description.
 
 ---
 
 ## Resources Used
 
-- cabotage-app CONTRIBUTING.md: the setup, test and commit-message conventions, and the instruction to comment on the issue first.
-- cabotage/cabotage-app issue #375: the maintainer thread that defined the scope (a filter on `/audit` plus icons on the process cards).
-- The repo's `Makefile` targets `make test`, `make lint` and `make fmt`.
+- cabotage-app `CONTRIBUTING.md`: the setup and test commands, the rule to comment on the issue first, the commit message style, and the "usually within a few weeks" review wait that set my nudge threshold.
+- cabotage-app issue #375: the maintainer thread (ewdurbin and JacobCoffee) that defined the scope, a filter on `/audit` plus icons on the process cards.
+- The repo's `.github/pull_request_template.md` and `.github/workflows/ci.yml`: the PR template I had to answer, and the checks (lint, type-check, tests, bandit) behind my ship manifest.
+- The repo's `Makefile` targets `make test`, `make lint`, `make type-check` and `make fmt`.
+- The repo's merged-PR history (via `gh pr list`): five outside-contributor merges that set my playbook's staleness number.
