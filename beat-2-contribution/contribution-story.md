@@ -135,7 +135,7 @@ macOS (Darwin 25.6, Apple Silicon) with Docker. I forked cabotage/cabotage-app t
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** I did not make a separate reproduction commit. I wrote the tests first and ran them against the unmodified code by stashing my source change, so the reproduction lives in the test file `tests/test_audit_process_filter.py` in my commit on branch `add-process-filter-to-audit-log` (pushed to my fork and opened as the PR above).
+- **Commit showing reproduction:** I did not make a separate reproduction commit. I wrote the tests first and ran them against the unmodified code by stashing my source change, so the reproduction lives in the test file `tests/test_audit_process_filter.py` in my commit https://github.com/Wayles3/cabotage-app/commit/773aba764ab1c405edc7ef526a0779ec61681fe3 on branch `add-process-filter-to-audit-log` (pushed to my fork and opened as the PR above).
 - **Screenshots/logs:** `make test ARGS='-k process_filter --no-cov'` on the unmodified code: `3 failed, 1 passed, 1209 deselected`. The failures were `test_process_filter_keeps_only_that_process`, `test_process_filter_pill_and_pagination_carry_the_filter` and `test_unknown_process_shows_no_entries`; the passing one was the unfiltered baseline.
 - **My findings:** the filter parameter is silently ignored, as the issue says. The data is there: scale events store changes keyed by process name in the `raw_data` column of the `audit_log` view. Other entry types (deploys, config changes) carry no process name.
 
