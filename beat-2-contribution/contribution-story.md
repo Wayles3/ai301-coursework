@@ -113,10 +113,10 @@ I should be able to filter the audit log to one process (for example `/audit?pro
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the maintainer's thread on issue #375 and Claude Code reading the code, to turn the two-line request into the four fields above.
+- What it produced: the problem statement and the list of affected files, including the finding that process names live in `raw_data["changes"]` of scale events.
+- Difficulties: the issue body is one line and the maintainer's comment only says "the UI bits of showing a little icon on the process cards", so the expected behavior had to be inferred.
+- What changed: I stated the inferred scope explicitly (scale events only) and put it in my claim comment so the maintainer could correct it.
 
 ---
 
