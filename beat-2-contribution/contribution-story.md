@@ -80,7 +80,7 @@ drafted, what you did with the draft.]
 
 I searched with my own issue-scout: three `gh search issues` queries built from my fit profile (Swift good-first-issue bugs, Swift good-first-issue, TypeScript help-wanted bugs), ranked by fewest comments. The scan surfaced flisk and Lelu issues and no Swift ones, so I also graded issues I found on the Issue Selection site: ArduPilot #32090 and #31107 (rejected, stale open PRs), spotatui #822 (rejected, already closed), paint #1067 (rejected, then accepted after I fixed the rubric), Altinn dialogporten #2427 (accepted but vague, "Implementation: TBD") and cabotage-app #375 (accepted, every required check passed). I chose #375 because it is a bounded, well-specified feature on a Python/Flask codebase: the audit data already exists and the maintainer's thread names the two pieces (a filter on `/audit` and a small icon on the process cards). It fits my profile of bounded work I can finish and have reviewed, with no architectural change, and I want practice with the issue, PR and review workflow on a real team codebase. The scout's verdict on it was accept.
 
-My claim comment link: claim pending 2026-11-17. The comment is written but not posted yet, because posting upstream was blocked in my tooling session. I will post it myself and record the link here.
+My claim comment link: https://github.com/cabotage/cabotage-app/issues/375#issuecomment-6958956958 (posted 2026-11-17). My tooling session could not post it for me, so I posted it myself.
 
 Honest read of the scout: it held up on the repo-health checks (it correctly rejected the two ArduPilot issues for stale open PRs), but it fell short on real repos in four ways. It accepted an issue blocked on an upstream release, it had no "issue is open" check, a dependabot burst made it reject a live repo, and its ranking order buried every Swift result. I patched all four in the rubric and search strategy. The dependabot fix and the "issue is open" check were tested; the other two were not. One caveat it could not settle for #375: the repo looks single-maintainer, and the maintainer's fast replies were on his own issues, so I do not know how quickly he reviews outside PRs.
 
@@ -197,7 +197,7 @@ Chose #375 after grading seven candidates. Forked and cloned cabotage-app, read 
 
 **2026-11-17**
 
-Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. Switched to starting only Postgres and Redis, and hit a port clash with another project's Redis, so ran a separate Redis container. Wrote the tests first and confirmed 3 of 4 failed on unmodified code, then implemented the filter. Full suite 1213 passed; lint and format clean. Committed locally as "Add process filter to the audit log". Posting the claim comment upstream was blocked in my tooling session, so the claim and the PR are still pending.
+Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. Switched to starting only Postgres and Redis, and hit a port clash with another project's Redis, so ran a separate Redis container. Wrote the tests first and confirmed 3 of 4 failed on unmodified code, then implemented the filter. Full suite 1213 passed; lint and format clean. Committed locally as "Add process filter to the audit log". Posting upstream was blocked in my tooling session, so I posted the claim comment myself (https://github.com/cabotage/cabotage-app/issues/375#issuecomment-6958956958); the PR is still pending.
 
 **Toolkit**
 
@@ -216,7 +216,7 @@ Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. 
 
 **Maintainer Feedback:**
 
-- 2026-11-17: none yet, nothing has been posted upstream.
+- 2026-11-17: none yet. My claim comment is posted; the PR is not opened yet.
 
 **Status:** Not yet opened. The branch is committed locally.
 
@@ -225,7 +225,7 @@ Wrong turn: ran `make start` expecting the whole stack, but image pulls failed. 
 - Tool: gh CLI for the issue, and git.
 - What it produced: a fork and a committed branch.
 - Difficulties: posting upstream was blocked in my tooling session.
-- What changed: I will post the claim comment and open the PR myself.
+- What changed: I posted the claim comment myself and will open the PR myself.
 
 ---
 
