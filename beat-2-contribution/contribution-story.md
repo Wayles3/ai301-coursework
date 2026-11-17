@@ -58,11 +58,9 @@ one in the week it belongs to.
 
 I replaced my unit 5 grader with the issue-scout skill and wrote a search strategy: three `gh search issues` queries (Swift good-first-issue bugs, Swift good-first-issue, TypeScript help-wanted bugs) plus ranking filters traced to my fit profile. My first scan graded five issues and accepted all five, but it let through flisk-sh/flisk#4426, which was blocked on an upstream release, and my "fewest comments first" order filled the top five with TypeScript and Go issues and no Swift. Grading my own picks exposed two more gaps: the rubric had no "issue is open" check (spotatui#822 was already fixed and closed), and a dependabot burst made it reject christianliebel/paint#1067 because its last five commits were all bot bumps. I added a "blocked on upstream" condition to "Scope is bounded", a required "Issue is open" check, and a rule to skip dependency-bot commits. Regrading #1067 then flipped it to accept, so that fix is tested. The upstream-blocked fix and the Swift-first ordering are untested because I never rescanned. Across seven graded issues, two were rejected for stale open PRs (ArduPilot #32090 and #31107) and I chose cabotage/cabotage-app#375, which passed every required check.
 
-**Unit 6: [one line on the tool work]**
+**Unit 10: Installed a voice guard and wrote a repo memory file for cabotage-app**
 
-[2-4 sentences: the voice-guard, the repo-memory file. What broke or
-fell short, and what changed because of it. "Nothing broke" counts when
-it is true - say how you know.]
+I extended my voice guide with an Upstream section (claims, questions, pings, each rule with a wrong/right pair), installed the voice-guard hook, and wrote a 29-line `CLAUDE.local.md` for cabotage-app (CONTRIBUTING rules, the audit subsystem files, test commands), excluded from my PR with `.git/info/exclude`. The wiring test blocked a body-less `gh issue comment --help` and logged the stop, so the hook fires. What fell short: I had already posted my claim by hand before installing the guard, and repro-check then failed it for promising "a PR up in the next day or two". The guard also stopped my revised draft three times, on rules about marking what I observed versus guessed, giving a concrete first step, and labelling unverified claims, and the draft passed on the fourth try. I revised the draft but have not yet edited the posted comment.
 
 **Unit 7: [one line on the tool work]**
 
@@ -78,18 +76,18 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-I searched with my own issue-scout: three `gh search issues` queries built from my fit profile (Swift good-first-issue bugs, Swift good-first-issue, TypeScript help-wanted bugs), ranked by fewest comments. The scan surfaced flisk and Lelu issues and no Swift ones, so I also graded issues I found on the Issue Selection site: ArduPilot #32090 and #31107 (rejected, stale open PRs), spotatui #822 (rejected, already closed), paint #1067 (rejected, then accepted after I fixed the rubric), Altinn dialogporten #2427 (accepted but vague, "Implementation: TBD") and cabotage-app #375 (accepted, every required check passed). I chose #375 because it is a bounded, well-specified feature on a Python/Flask codebase: the audit data already exists and the maintainer's thread names the two pieces (a filter on `/audit` and a small icon on the process cards). It fits my profile of bounded work I can finish and have reviewed, with no architectural change, and I want practice with the issue, PR and review workflow on a real team codebase. The scout's verdict on it was accept.
+I searched with my own issue-scout: three `gh search issues` queries built from my fit profile (Swift good-first-issue bugs, Swift good-first-issue, TypeScript help-wanted bugs), ranked by fewest comments. The scan surfaced flisk and Lelu issues and no Swift ones, so I also graded issues I found on the Issue Selection site: ArduPilot #32090 and #31107 (rejected, stale open PRs), spotatui #822 (rejected, already closed), paint #1067 (rejected, then accepted after I fixed the rubric), Altinn dialogporten #2427 (accepted but vague, "Implementation: TBD") and cabotage-app #375 (accepted, every required check passed). I chose #375 because it is a bounded, well-specified feature on a Python/Flask codebase: the audit data already exists and the maintainer's thread names the two pieces (a filter on `/audit` and a small icon on the process cards). It fits my profile of bounded work I can finish and have reviewed, with no architectural change, and I want practice with the issue, PR and review workflow on a real team codebase. The scout's verdict on it was accept with every required check passing. After the unit 10 scope patch it also gives each accepted issue a difficulty note, and for #375 that note is moderate: the change is bounded, but I had to find the audit view and the process-card template myself, and the open question is whether "process" covers only scale events. I read the repo's CONTRIBUTING.md end to end before claiming: it asks you to comment on the issue first, to open a focused PR from an up-to-date branch, to push review fixes as new commits instead of force-pushing, and it says nothing about AI, so I disclose my AI assistance in what I post.
 
-My claim comment link: https://github.com/cabotage/cabotage-app/issues/375#issuecomment-6958956958 (posted 2026-11-17). My tooling session could not post it for me, so I posted it myself.
+My claim comment link: https://github.com/cabotage/cabotage-app/issues/375#issuecomment-6958956958 (posted 2026-11-17). I posted it by hand before my voice guard was installed, so the guard never checked it. When I ran repro-check on that text afterwards it failed my own rule: it says "I expect to have a PR up in the next day or two", which promises a date. I have a revised claim that passes the guard and repro-check, but I have not edited the posted comment.
 
-Honest read of the scout: it held up on the repo-health checks (it correctly rejected the two ArduPilot issues for stale open PRs), but it fell short on real repos in four ways. It accepted an issue blocked on an upstream release, it had no "issue is open" check, a dependabot burst made it reject a live repo, and its ranking order buried every Swift result. I patched all four in the rubric and search strategy. The dependabot fix and the "issue is open" check were tested; the other two were not. One caveat it could not settle for #375: the repo looks single-maintainer, and the maintainer's fast replies were on his own issues, so I do not know how quickly he reviews outside PRs.
+Honest read of the scout: after the unit 10 patch, regrading #375 returned reject, but only because "No existing claim" counted my own claim and my own open PR #509 as a stranger's, a gap I have not patched. I am keeping this issue anyway for that reason. Otherwise it held up on the repo-health checks (it correctly rejected the two ArduPilot issues for stale open PRs), but it fell short on real repos in four ways. It accepted an issue blocked on an upstream release, it had no "issue is open" check, a dependabot burst made it reject a live repo, and its ranking order buried every Swift result. I patched all four in the rubric and search strategy. The dependabot fix and the "issue is open" check were tested; the other two were not. One caveat it could not settle for #375: the repo looks single-maintainer, and the maintainer's fast replies were on his own issues, so I do not know how quickly he reviews outside PRs.
 
 **Toolkit**
 
 - Tool: issue-scout (my search strategy and my rubric), run as a scan plus direct-URL grades of my picks.
 - What it produced: a scan that accepted all five of its top picks, and a read-out per pick; for #375 an accept with every required check passing, a weak pass on acceptance criteria, and a note that maintainer responsiveness to outsiders was unproven.
 - Difficulties: the blocked-upstream miss, no open-issue check, the dependabot misread, and the all-TypeScript ordering. The headless runs also needed tool permissions I had to grant narrowly (`gh`, `python3`).
-- What changed: three rubric fixes (blocked on upstream, issue is open, skip dependency-bot commits) and a Swift-first ordering in search-strategy.md. I did not rescan, so the ordering and blocked-upstream fixes are untested.
+- What changed: three rubric fixes (blocked on upstream, issue is open, skip dependency-bot commits) and a Swift-first ordering in search-strategy.md. In unit 10 I replaced my "Scope is bounded" check with the staff `scope-feasible` row plus a difficulty note, and kept my blocked-upstream condition as its own "Not blocked upstream" row so that fix survived. #375 came out moderate and Altinn #2427 ambitious. I did not rescan, so the Swift-first ordering is untested.
 
 ---
 
@@ -141,10 +139,10 @@ macOS (Darwin 25.6, Apple Silicon) with Docker. I forked cabotage/cabotage-app t
 
 **Toolkit**
 
-- Tool: the repo's own Docker/Make test setup, and Claude Code to read the code and run it.
-- What it produced: a failing-then-passing test as the reproduction.
-- Difficulties: the full stack would not start (image pulls), and a Redis port conflict with another project.
-- What changed: ran only the services the tests need, and used a separate Redis container.
+- Tool: repro-check, with the wild scope installed, run on my claim comment and repro report together.
+- What it produced: reject on the first run because my posted claim promised "a PR up in the next day or two"; the repro report passed. A later run also rejected the report because the symptom was only in prose and step 1 had no command. After I added the real `assert 2 == 1` output and concrete steps, and rewrote the claim to promise only investigation, it accepted.
+- Difficulties: repro-check graded the same text differently on two runs, so its first pass did not mean I was done. It also needed real output, not my description of it.
+- What changed: I captured the actual baseline failure by running the test on unmodified `main`, and I rewrote the claim draft so it passes my voice guard and repro-check.
 
 ---
 
